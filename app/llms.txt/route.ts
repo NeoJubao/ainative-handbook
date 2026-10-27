@@ -15,7 +15,7 @@ const header = `# ${appName}（${appNameEn}）
 
 ## English summary
 
-AI Native Handbook is a practical, experience-based guide to building products with Claude Code first (the methods also apply to Codex, Cursor, Gemini CLI and other AI coding tools), written in Chinese by Neo (github.com/0xNeoTian), a founder who runs two organizations — a dozen repositories and dozens of agents — with a few collaborators, largely with Claude Code. It distills 70+ project and incident retrospectives written over about half a year into:
+AI Native Handbook is a practical, experience-based guide to building products with Claude Code first (the methods also apply to Codex, Cursor, Gemini CLI and other AI coding tools), written in Chinese by Neo (github.com/NeoJubao), a founder who runs two organizations — a dozen repositories and dozens of agents — with a few collaborators, largely with Claude Code. It distills 70+ project and incident retrospectives written over about half a year into:
 
 - a three-tier path: side tool → product (the six-stage AI-native SDLC: plan, design, build, test, ship, maintain) → organization (a separate ops repository, an org-level ops agent, layered memory, and feedback loops that keep rules alive);
 - a hands-on comparison of the superpowers and Matt Pocock skills workflow plugins, and how to migrate between them;

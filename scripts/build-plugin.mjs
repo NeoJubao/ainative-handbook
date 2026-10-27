@@ -118,7 +118,7 @@ const sha256 = createHash('sha256').update(readFileSync(zipPath)).digest('hex');
 
 const marketplace = {
   name: 'ainative',
-  owner: { name: manifest.author?.name ?? 'Neo', url: manifest.author?.url ?? 'https://github.com/0xNeoTian' },
+  owner: { name: manifest.author?.name ?? 'Neo', url: manifest.author?.url ?? 'https://github.com/NeoJubao' },
   metadata: {
     description: 'AI Native 手册的配套插件：体检、安装配置、推荐、新项目、坑检查、复盘提炼',
     version,

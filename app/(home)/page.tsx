@@ -184,8 +184,8 @@ export default function HomePage() {
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-8 text-xs text-fd-muted-foreground sm:px-6">
           <span>
             {appName} · 作者 Neo（
-            <a href="https://github.com/0xNeoTian" className="hover:text-fd-foreground">
-              @0xNeoTian
+            <a href="https://github.com/NeoJubao" className="hover:text-fd-foreground">
+              @NeoJubao
             </a>
             ）· 内容 CC BY 4.0
           </span>
@@ -193,7 +193,7 @@ export default function HomePage() {
             <Link href="/docs/reference/changelog" className="hover:text-fd-foreground">
               更新日志
             </Link>
-            <a href="https://github.com/0xNeoTian/ainative-handbook" className="hover:text-fd-foreground">
+            <a href="https://github.com/NeoJubao/ainative-handbook" className="hover:text-fd-foreground">
               GitHub
             </a>
             <a href="/llms.txt" className="hover:text-fd-foreground">

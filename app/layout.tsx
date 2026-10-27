@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
   description: appDescription,
   applicationName: appName,
-  authors: [{ name: 'Neo', url: 'https://github.com/0xNeoTian' }],
+  authors: [{ name: 'Neo', url: 'https://github.com/NeoJubao' }],
   keywords: [
     'AI Native 手册',
     'AI Native Handbook',

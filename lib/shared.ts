@@ -13,11 +13,11 @@ export const docsContentRoute = '/llms.mdx/docs';
 
 export const author = {
   name: 'Neo',
-  github: '0xNeoTian',
+  github: 'NeoJubao',
 };
 
 export const gitConfig = {
-  user: '0xNeoTian',
+  user: 'NeoJubao',
   repo: 'ainative-handbook',
   branch: 'main',
   isPublic: true,

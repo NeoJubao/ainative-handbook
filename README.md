@@ -1,6 +1,6 @@
 # AI Native 手册 · AI Native Handbook
 
-[![CI](https://github.com/0xNeoTian/ainative-handbook/actions/workflows/ci.yml/badge.svg)](https://github.com/0xNeoTian/ainative-handbook/actions/workflows/ci.yml)
+[![CI](https://github.com/NeoJubao/ainative-handbook/actions/workflows/ci.yml/badge.svg)](https://github.com/NeoJubao/ainative-handbook/actions/workflows/ci.yml)
 
 > Claude Code 实战：从小工具到组织协同。规则来自 70 多篇真实复盘，每条都标明可信度和出处。
 
