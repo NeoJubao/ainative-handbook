@@ -88,7 +88,7 @@ export default function HomePage() {
             href="/docs/pitfalls"
             className="rounded-lg border px-5 py-2.5 text-sm font-semibold text-fd-foreground transition-colors hover:bg-fd-accent"
           >
-            看 25 张踩坑卡片
+            看 29 张踩坑卡片
           </Link>
         </div>
         <div className="mt-10 w-full max-w-2xl">
@@ -184,7 +184,7 @@ export default function HomePage() {
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-8 text-xs text-fd-muted-foreground sm:px-6">
           <span>
             {appName} · 作者 Neo（
-            <a href="https://github.com/NeoJubao" className="hover:text-fd-foreground">
+            <a href="https://x.com/NeoJubao" className="hover:text-fd-foreground">
               @NeoJubao
             </a>
             ）· 内容 CC BY 4.0

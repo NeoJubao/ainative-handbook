@@ -110,7 +110,7 @@ Matt 的说法可以作为一般任务的参照：模型推理保持敏锐的窗
 
 ## 并行与子 agent
 
-- **互不相干的任务各开一个 worktree**：`claude -w export-csv`、`claude -w fix-rate-limit`（`-w` 是 `--worktree` 的简写），每个会话在自己的分支上干活，不会互相改到同一份文件。也可以用 `claude --bg` 开后台会话，`claude agents` 查看进度。
+- **互不相干的任务各开一个 worktree**：`claude -w export-csv`、`claude -w fix-rate-limit`（`-w` 是 `--worktree` 的简写），每个会话在自己的分支上干活，不会互相改到同一份文件（见[一个 checkout 只给一个会话](/docs/pitfalls/one-checkout-one-session)）。也可以用 `claude --bg` 开后台会话，`claude agents` 查看进度。
 - **从两三个会话开始**：Playbook 的建议是审查跟得上再加；改同一批文件的任务放在一个会话里顺序做。
 - **实现类子 agent 不并行，审查类可以**：并行实现改到同一处代码，冲突处理的成本比省下的时间还多。
 - **子 agent 用最强的模型**：有工程不变量的任务降级到小模型，单次看不出问题，累积起来不变量频繁被破坏，审查兜不住。只有批量重命名、移动文件这类纯机械的任务例外。

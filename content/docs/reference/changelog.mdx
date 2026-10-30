@@ -2,10 +2,19 @@
 title: 更新日志
 description: 每个版本改了什么
 evidence: lived
-updated: 2026-10-28
+updated: 2026-10-30
 ---
 
 这一页记录每个版本的实质变化，最新的版本在最上面；措辞和排版上的小修正不单独记。
+
+## v0.1.5 · 2026-10-30
+
+- 新增[小建议](/docs/reference/tips)页：快捷入口、只读小号、CDN 验证、批量脚本
+- 坑库新增 4 张卡，共 29 张：[同一个事实只能有一个定义](/docs/pitfalls/one-definition)、[一个 checkout 只给一个会话](/docs/pitfalls/one-checkout-one-session)、[子 agent 的长产出别走返回值](/docs/pitfalls/subagent-output-to-file)、[agent 读得到的凭证，就当已经暴露](/docs/pitfalls/credentials-agent-can-read)
+- 更新 3 张卡：发版清单加上主源复发和“发了但没到”，并把下载验证从 HEAD 改成 GET；CI 卡加上测试假信号；异构审查卡加上推翻方案的例子
+- 护栏页如实更新：deny 规则和数据库相关的 ask 已补回，备份前置、hook 挂载和托管设置还没补
+- 全站挂上作者的 X 账号 [@NeoJubao](https://x.com/NeoJubao)
+- 插件 `ainative` 升到 0.1.5：`/ainative:pitfall-check` 同步到 29 张卡
 
 ## v0.1.4 · 2026-10-28
 - 作者 GitHub 账号由 0xNeoTian 改名为 NeoJubao,全站署名、License、插件元数据与仓库链接同步更新;旧地址由 GitHub 自动重定向

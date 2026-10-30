@@ -1,6 +1,6 @@
 # 坑库（自动生成，请勿手改）
 
-> 由 `scripts/build-plugin.mjs` 从手册 `content/docs/pitfalls/` 生成，共 25 张。完整内容见 https://ainative.jubao.ai/docs/pitfalls
+> 由 `scripts/build-plugin.mjs` 从手册 `content/docs/pitfalls/` 生成，共 29 张。完整内容见 https://ainative.jubao.ai/docs/pitfalls
 
 ## 切换工具会整份覆盖设置
 
@@ -293,6 +293,72 @@ dropdb restore_check
 
 后来我把这三层都加上了，半年后才发现它们已经悄悄失效，见[防护规则会悄悄失效](/docs/pitfalls/guardrails-decay)。
 
+## 一个 checkout 只给一个会话
+
+- id：`one-checkout-one-session`
+- 阶段：build；档位：product, org；可信度：lived
+- 规则：并行任务各开 worktree，编辑用绝对路径，临时保存不用 stash
+- 防什么：并行会话共用一个工作区时，分支、未提交改动和 stash 都会互相踩。防止一个会话冲掉另一个会话的工作
+- 链接：https://ainative.jubao.ai/docs/pitfalls/one-checkout-one-session
+
+怎么做：
+
+**并行任务各开一个 worktree**：
+
+```bash
+claude -w export-csv
+claude -w fix-rate-limit
+```
+
+主 checkout 不放未提交的改动。发现分支被切、文件莫名回退，就是有并行会话的信号，马上换到 worktree。
+
+**需要临时干净的工作区时，不用 stash**。把文件复制到临时目录，或者新开一个 worktree。
+
+**非用 stash 不可时按 SHA 操作**，不要 `pop` 栈顶：
+
+```bash
+git stash list --format='%h %gd %s'
+git stash apply <sha>
+```
+
+**判断“改动丢了”之前，先查这三处**。正本常常在别的 worktree 里：
+
+```bash
+git worktree list
+git stash list
+git fsck --unreachable | grep commit
+```
+
+**编辑和脚本都用绝对路径**。开工前确认自己在哪：
+
+```bash
+pwd && git branch --show-current
+```
+
+## 同一个事实只能有一个定义
+
+- id：`one-definition`
+- 阶段：build；档位：product, org；可信度：lived
+- 规则：跨进程、跨端的约定只定义一次，做不到就加对齐测试
+- 防什么：路径、时间窗、开关条件在两端各写一份，就会悄悄分叉。防止写方和读方各自实现同一份约定
+- 链接：https://ainative.jubao.ai/docs/pitfalls/one-definition
+
+怎么做：
+
+**同一种语言：只留一个定义，其余的派生**。时间窗那次，我把重复的常量改成从一个常量派生，查询函数的窗口改成必传参数，让编译器强制对齐。
+
+**跨语言共用不了：加对齐测试**。两端用同一份测试数据，断言算出来的路径或字段完全一致。新增信号文件、health 字段这类跨进程协议时，PR 必须带上这个测试。
+
+**服务端加了用户可见的闸门或字段，PR 里列出前端消费点**。没有消费点，就说明功能只做了一半。
+
+**改一个值之前，先搜它还出现在哪**：
+
+```bash
+git grep -n '<那个值或字段名>'
+```
+
+**验证要走失败路径**：凭证失效、再恢复，这种全流程要在真机上走一遍。只验证正常路径，上面的第一个问题根本看不到。
+
 ## 计划和执行分开会话
 
 - id：`split-plan-exec`
@@ -448,6 +514,8 @@ bun test && bun run test:e2e && bunx tsc --noEmit && bun run lint
 ```
 
 **关键检查在分支保护里设为 required**，红着就合不进去。
+
+**让测试的信号可信**：给测试单独一个库，用环境变量显式指定；跑完看跳过了多少，大量 SKIP 不算通过；多个包共用一个库时串行跑。
 
 ## 自己审自己等于没审
 
@@ -842,6 +910,43 @@ grep -oE '`[A-Za-z0-9_./-]+\.(md|json|sh)`' CLAUDE.md | tr -d '`' | sort -u \
 
 **复审日期交给园丁**。每周扫一遍过期的“下次 review 日期”，过期就提醒或直接提 PR。<Evidence kind="trial" />
 
+## agent 读得到的凭证，就当已经暴露
+
+- id：`credentials-agent-can-read`
+- 阶段：cross；档位：tool, product, org；可信度：lived
+- 规则：agent 能读到的凭证按已暴露处理，模型自觉和脱敏都不算防线
+- 防什么：模型拒绝和输出脱敏都靠不住。防止把明文凭证留在 agent 够得着的地方，尤其是开着免确认模式时
+- 链接：https://ainative.jubao.ai/docs/pitfalls/credentials-agent-can-read
+
+怎么做：
+
+**先盘点明文**。配置文件、备份文件、shell 历史里都可能有，检查命令见[密钥与配置](/docs/guardrails/secrets)。
+
+**把凭证移出文件**。放进系统钥匙串，用的时候再取，做法见[密钥与配置](/docs/guardrails/secrets)。
+
+<Evidence kind="industry" /> **用沙箱屏蔽凭证**。Claude Code 的沙箱可以挡住 Bash 读取指定文件和环境变量（官方 schema 标注 v2.1.187 起，截至 2026-10）。我还没有长期用过。下面是 `~/.claude/settings.json` 的片段，路径和变量名按你的环境改；屏蔽 `~/.ssh` 后，走 SSH 的 git 操作要另想办法：
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "credentials": {
+      "files": [
+        { "path": "~/.aws", "mode": "deny" },
+        { "path": "~/.ssh", "mode": "deny" }
+      ],
+      "envVars": [
+        { "name": "GITHUB_TOKEN", "mode": "deny" }
+      ]
+    }
+  }
+}
+```
+
+**token 只给最小权限**。能只读就只读，能限定仓库就限定仓库，能设过期时间就设。
+
+**不可信内容、免确认、明文凭证，三样不同时出现**。处理网页、邮件、别人提交的任务时，不开免确认模式，也不在存着凭证的机器上跑。
+
 ## 对外内容先读权威文档
 
 - id：`read-canonical-first`
@@ -867,4 +972,33 @@ grep -oE '`[A-Za-z0-9_./-]+\.(md|json|sh)`' CLAUDE.md | tr -d '`' | sort -u \
 **写进 CLAUDE.md**，让每次会话都照做：写对外文档前先读权威文档，凭记忆写的内容一律标“待核实”。
 
 这本手册的写作规范里也有同一条：命令、版本号、日期和数字都要有出处，查不到就不写。
+
+## 子 agent 的长产出别走返回值
+
+- id：`subagent-output-to-file`
+- 阶段：cross；档位：product, org；可信度：lived
+- 规则：长产出让子 agent 写文件、只回摘要；要读的内容直接嵌进提示词
+- 防什么：长文档经返回值传递会被静默截断，子 agent 的工具也可能和你想的不一样。防止下游拿着残缺输入继续干
+- 链接：https://ainative.jubao.ai/docs/pitfalls/subagent-output-to-file
+
+怎么做：
+
+**提示词里写死产出方式**：
+
+```markdown
+把全文用 Write 写入 <绝对路径>，返回内容只写不超过 300 字的摘要。
+文档最后一行写 END。
+```
+
+**下游读文件，不读返回值**。接力之前先确认文件完整：
+
+```bash
+test -s "<绝对路径>" && tail -n 1 "<绝对路径>"
+```
+
+**要读的内容直接嵌进提示词**。子 agent 要读文件或跑命令时，把内容贴进去，或者先派一个探针任务，确认它实际有哪些工具。
+
+**给子 agent 限定工具**。自定义子 agent 时用 frontmatter 的 `tools` 字段列清楚，浏览器这类有外部影响的工具不要放进去。
+
+**疑似截断，先查运行日志**。看每个 agent 的完整返回，从上游产物补救，不用整个重跑。
 

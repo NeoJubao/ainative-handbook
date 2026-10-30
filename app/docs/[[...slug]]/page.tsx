@@ -88,6 +88,7 @@ export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): P
     },
     twitter: {
       card: 'summary_large_image',
+      creator: '@NeoJubao',
       title: page.data.title,
       description: page.data.description,
       images: image,

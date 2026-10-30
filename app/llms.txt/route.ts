@@ -19,7 +19,7 @@ AI Native Handbook is a practical, experience-based guide to building products w
 
 - a three-tier path: side tool → product (the six-stage AI-native SDLC: plan, design, build, test, ship, maintain) → organization (a separate ops repository, an org-level ops agent, layered memory, and feedback loops that keep rules alive);
 - a hands-on comparison of the superpowers and Matt Pocock skills workflow plugins, and how to migrate between them;
-- guardrails (permission rules, hooks, health checks) and 25 cards drawn from real retrospectives and work logs, each with a one-line rule and a dated basis;
+- guardrails (permission rules, hooks, health checks) and 29 cards drawn from real retrospectives and work logs, each with a one-line rule and a dated basis;
 - templates (one-page CLAUDE.md, intent, spec, plan, ADR, retro, REVIEW.md, subagent prompt);
 - an installable Claude Code plugin (doctor, setup, recommend, new-project, pitfall-check, harvest).
 
