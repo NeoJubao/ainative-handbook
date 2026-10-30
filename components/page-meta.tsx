@@ -50,7 +50,7 @@ export function RuleCallout({ rule }: { rule: string }) {
 }
 
 export function ShareOnX({ tweet, url }: { tweet: string; url: string }) {
-  const href = `https://x.com/intent/post?text=${encodeURIComponent(tweet)}&url=${encodeURIComponent(siteUrl + url)}`;
+  const href = `https://x.com/intent/post?text=${encodeURIComponent(tweet)}&url=${encodeURIComponent(siteUrl + url)}&via=NeoJubao`;
 
   return (
     <a

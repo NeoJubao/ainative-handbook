@@ -40,6 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    creator: '@NeoJubao',
     title: `${appName}（${appNameEn}）`,
     description: appDescription,
     images: ['/og/home.png'],

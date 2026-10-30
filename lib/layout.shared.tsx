@@ -21,6 +21,7 @@ export function baseOptions(): BaseLayoutProps {
       { text: '启动器', url: '/docs/launcher' },
       { text: '坑库', url: '/docs/pitfalls', active: 'nested-url' },
       { text: '插件', url: '/docs/reference/plugin' },
+      { text: 'X', url: 'https://x.com/NeoJubao', external: true },
     ],
     githubUrl: gitConfig.isPublic ? `https://github.com/${gitConfig.user}/${gitConfig.repo}` : undefined,
   };

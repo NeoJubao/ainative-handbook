@@ -1,0 +1,86 @@
+---
+title: 一个 checkout 只给一个会话
+description: 并行会话共用一个工作区时，分支、未提交改动和 stash 都会互相踩。防止一个会话冲掉另一个会话的工作
+type: pitfall
+evidence: lived
+tier: [product, org]
+stage: build
+rule: 并行任务各开 worktree，编辑用绝对路径，临时保存不用 stash
+tweet: 并行开几个 Claude 会话，同在一个目录干活。一次 stash pop 弹出的是别的会话的旧改动；一次分支被另一个会话切走，我的修改被冲掉；还有一次补丁写进了错的 worktree。这些都不报错。现在并行任务各开一个 worktree，路径全写绝对路径。
+updated: 2026-10-30
+basis: 2026-08、2026-09 工作记录，2026-10 复盘
+---
+
+## 发生了什么
+
+同类问题出现过三次。
+
+2026-08，为了对比一个不稳定的测试，agent 执行了 stash、切到主分支、再 stash pop。第二次 pop 弹出来的是另一个会话很久以前留下的 stash，冲突出 6 个文件；主 checkout 里另一个会话的未提交副本也不见了，我一度以为别人的工作被毁了。后来查明，那个会话的正本已经提交在自己的 worktree 里，丢的只是过期副本。
+
+2026-09，我在做发版提速，主 checkout 被另一个并行会话切到了合并分支，我的未提交修改被冲掉。幸好对方合并前把我的改动 stash 走了，我才能按 SHA 恢复。这次靠的是运气。
+
+2026-10，打包用的 worktree 和主仓并行，一段用相对路径的补丁脚本写错了 checkout。靠 `git diff`、生成补丁、再 apply 救了回来。
+
+## 为什么会这样
+
+一个目录只有一个当前分支、一份工作区。两个会话共用它，谁切分支、谁清工作区，另一个都不知道。stash 更隐蔽：它是整个仓库共享的一个栈，会收走所有人的未提交改动，`pop` 弹出的也不一定是你放进去的。
+
+这些操作都能成功执行，不会报错。出问题的那个会话，往往要到后面才发现文件不对。
+
+## 怎么做
+
+<Steps>
+<Step>
+
+**并行任务各开一个 worktree**：
+
+```bash
+claude -w export-csv
+claude -w fix-rate-limit
+```
+
+主 checkout 不放未提交的改动。发现分支被切、文件莫名回退，就是有并行会话的信号，马上换到 worktree。
+
+</Step>
+<Step>
+
+**需要临时干净的工作区时，不用 stash**。把文件复制到临时目录，或者新开一个 worktree。
+
+</Step>
+<Step>
+
+**非用 stash 不可时按 SHA 操作**，不要 `pop` 栈顶：
+
+```bash
+git stash list --format='%h %gd %s'
+git stash apply <sha>
+```
+
+</Step>
+<Step>
+
+**判断“改动丢了”之前，先查这三处**。正本常常在别的 worktree 里：
+
+```bash
+git worktree list
+git stash list
+git fsck --unreachable | grep commit
+```
+
+</Step>
+<Step>
+
+**编辑和脚本都用绝对路径**。开工前确认自己在哪：
+
+```bash
+pwd && git branch --show-current
+```
+
+</Step>
+</Steps>
+
+## 相关
+
+- [Build：写代码](/docs/product/build)
+- [子 agent 提示词模板](/docs/templates/subagent-prompt)
+- [不让 agent 动 git 历史](/docs/pitfalls/git-history-no-surgery)

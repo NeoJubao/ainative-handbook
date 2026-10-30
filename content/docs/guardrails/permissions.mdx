@@ -4,7 +4,7 @@ description: 用 settings.json 把“绝对不行”和“必须确认”写进�
 evidence: lived
 tier: [tool, product, org]
 stage: cross
-updated: 2026-10-17
+updated: 2026-10-30
 basis: 2026-05 复盘、2026-10 工作记录
 ---
 
@@ -21,7 +21,7 @@ basis: 2026-05 复盘、2026-10 工作记录
 
 ## 我用过的规则
 
-这些是我用户级设置里用过的规则。2026-10 排查时发现，它们被一个配置切换工具连同整份设置覆盖丢了，目前正在恢复（见[防护规则会悄悄失效](/docs/pitfalls/guardrails-decay)）。
+这些是我用户级设置里用过的规则。2026-10 排查时发现，它们被一个配置切换工具连同整份设置覆盖丢了。2026-10-30 我补回了 deny 和数据库相关的 ask；备份脚本的前置检查、hook 挂载和下文的托管设置还没补（见[防护规则会悄悄失效](/docs/pitfalls/guardrails-decay)）。
 
 ```json
 {
@@ -34,13 +34,13 @@ basis: 2026-05 复盘、2026-10 工作记录
       "Bash(git reset --hard origin/main *)"
     ],
     "ask": [
-      "Bash(gh api * -X DELETE *)",
+      "Bash(gh api *DELETE*)",
       "Bash(gh repo delete *)",
       "Bash(gh pr merge *)",
       "Bash(make db-reset *)",
       "Bash(docker volume rm *)",
       "Bash(docker compose down -v *)",
-      "Bash(psql * -c DROP*)",
+      "Bash(psql *DROP*)",
       "Bash(wrangler deploy *)",
       "Bash(vercel --prod *)",
       "Bash(wrangler d1 execute * --remote *)"
@@ -67,10 +67,10 @@ basis: 2026-05 复盘、2026-10 工作记录
 
 Bash 规则匹配的是命令文本，官方文档明确说它**不是程序级的安全边界**：`Bash(rm *)` 拦得住 `rm -rf build/`，拦不住 `/bin/rm -rf build/` 和 `bash -c 'rm -rf build/'`；`Bash(git push *)` 拦不住 `git -C . push`。
 
-我自己的规则里就有写得不够好的。按官方文档的匹配规则推算：
+我原来的规则里就有写得不够好的。按官方文档的匹配规则推算（前两条 2026-10-30 已经改掉，上面的列表是改后的写法）：
 
-- `Bash(gh api * -X DELETE *)` 有两个通配，要求 `-X DELETE` 前后都还有内容。最常见的 `gh api -X DELETE repos/o/r` 和 `gh api repos/o/r -X DELETE` 都匹配不上，`--method DELETE` 也不行。改成 `Bash(gh api *DELETE*)` 更稳，误报的代价只是多问一次
-- `Bash(psql * -c DROP*)` 要求 `-c` 后面紧跟大写的 `DROP`。真实命令几乎都带引号（`-c "DROP TABLE ..."`），写成小写也很常见，很可能匹配不上
+- 原来的 `Bash(gh api * -X DELETE *)` 有两个通配，要求 `-X DELETE` 前后都还有内容。最常见的 `gh api -X DELETE repos/o/r` 和 `gh api repos/o/r -X DELETE` 都匹配不上，`--method DELETE` 也不行。改成 `Bash(gh api *DELETE*)` 更稳，误报的代价只是多问一次
+- 原来的 `Bash(psql * -c DROP*)` 要求 `-c` 后面紧跟大写的 `DROP`，而真实命令几乎都带引号（`-c "DROP TABLE ..."`）。改成 `Bash(psql *DROP*)` 能匹配带引号的写法，但小写的 `drop` 还是漏，这要靠 hook
 - ask 里只写了 `Bash(wrangler deploy *)`，没写 `Bash(bunx wrangler deploy *)`。规则按命令文本匹配，不会自动去掉 `bunx` 这类前缀，用 bunx 部署时这条拦不住，两种写法都要列（见[小工具上线](/docs/tool/ship)）
 
 所以权限规则只能拦住 agent 通常的写法。需要正则、不区分大小写这类更强的匹配，交给 [hook](/docs/guardrails/hooks)；需要真正的隔离，用官方的沙箱（`/sandbox`）。
@@ -166,7 +166,7 @@ sudo cat "$f" | jq empty && echo "JSON 有效"
 </Step>
 </Steps>
 
-不管结果如何，分工都一样：不可逆的放 deny，需要兜底的放 hook。官方文档写明，PreToolUse hook 返回 deny 时，即使在 bypass 模式下也会拦下。想少弹窗又不想完全放开，官方更推荐 auto 模式：由一个分类器在后台审查每个动作。
+不管结果如何，分工都一样：不可逆的放 deny，需要兜底的放 hook。官方文档写明，PreToolUse hook 返回 deny 时，即使在 bypass 模式下也会拦下。想少弹窗又不想完全放开，官方更推荐 auto 模式：由一个分类器在后台审查每个动作。快捷启动的写法和风险见[小建议](/docs/reference/tips)。
 
 ## 硬规则下沉
 
@@ -185,6 +185,7 @@ sudo cat "$f" | jq empty && echo "JSON 有效"
 - [不让 agent 动 git 历史](/docs/pitfalls/git-history-no-surgery)
 - [切换工具会整份覆盖设置](/docs/pitfalls/config-overwrite)
 - [防护规则会悄悄失效](/docs/pitfalls/guardrails-decay)
+- [agent 读得到的凭证，就当已经暴露](/docs/pitfalls/credentials-agent-can-read)
 
 ## 相关
 

@@ -7,13 +7,15 @@ tier: [product]
 stage: ship
 rule: 发布产物逐项打勾验证，清单固化进 skill
 tweet: 有一次发版，安装包传了，云端也部署了，唯独漏传了 CDN 主源。用户的自动更新卡在旧版本将近一天，我还以为发完了。发版漏一步不会报错，只会安静地少一块。现在发版按清单逐项打勾，每项都有验证命令，清单写进 skill。
-updated: 2026-10-17
-basis: 2026-08 工作记录
+updated: 2026-10-30
+basis: 2026-08 工作记录、2026-10 复盘
 ---
 
 ## 发生了什么
 
 一次客户端发版：安装包传了，云端也部署了，唯独漏传了 CDN 主源。客户端的自动更新走的是 CDN，于是用户卡在旧版本将近一天，升不上来。
+
+2026-10 同样的事又来了一次。这一步之前只散落在注释里，没有写进编号步骤，所以再次漏掉：CDN 卡在旧版本，刷缓存、切路由都没用，因为主源本身就是旧的。同一个月还有另一种“发了但没到”：一个修复 PR 开了 12 天没合并，中间打的几个版本都不带它，也没有传到 CDN。我们以为修复已经发出去了，用户手上还是旧的。
 
 ## 为什么会这样
 
@@ -39,7 +41,14 @@ basis: 2026-08 工作记录
 - [ ] 找一台装着旧版本的机器，走通一次自动更新
 ```
 
-验证尽量是命令：`curl -sI <下载地址>` 看状态码，`curl -s <更新清单地址>` 看版本号。
+验证尽量是命令：下载地址看状态码和字节数，更新清单看版本号。下载地址用 GET 验证，不用 HEAD，原因见[小建议](/docs/reference/tips)：
+
+```bash
+curl -s -o /dev/null -w '%{http_code} %{size_download}\n' "$DOWNLOAD_URL"
+curl -s "$MANIFEST_URL"
+```
+
+CDN 上的版本不对时，先绕过 CDN 直接读主源。主源是旧的，刷缓存没有用。
 
 </Step>
 <Step>
@@ -70,3 +79,4 @@ gstack 的 `/ship`、`/land-and-deploy` 能覆盖合并、版本号、部署这�
 - [gstack：上线流水线怎么用](/docs/workflow/gstack)
 - [网络报错先查远端](/docs/pitfalls/verify-remote-first)
 - [CI 绿了不等于能发版](/docs/pitfalls/ci-green-not-ready)
+- [小建议](/docs/reference/tips)

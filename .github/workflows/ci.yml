@@ -110,16 +110,18 @@ jobs:
             --accept '200..=299,429'
             --exclude '^https?://([^/]*\.)?openai\.com'
             --exclude '^https?://mcp\.cloudflare\.com'
+            --exclude '^https?://(www\.)?x\.com'
             'content/**/*.mdx'
 
-      # lychee 不支持按域名设置可接受的状态码，这两个域名单独各查一遍：
-      # openai.com 对脚本请求返回 403，mcp.cloudflare.com/mcp 未登录返回 401，都说明地址存在。
-      - name: 外链检查（openai.com 接受 403，mcp.cloudflare.com 接受 401）
+      # lychee 不支持按域名设置可接受的状态码，这三个域名单独各查一遍：
+      # openai.com 和 x.com 对脚本请求返回 403，mcp.cloudflare.com/mcp 未登录返回 401，都说明地址存在。
+      - name: 外链检查（openai.com 和 x.com 接受 403，mcp.cloudflare.com 接受 401）
         run: |
           common=(--no-progress --scheme https --scheme http --root-dir "$GITHUB_WORKSPACE"
                   --max-retries 3 --retry-wait-time 2 --timeout 30)
           lychee "${common[@]}" --include '^https?://([^/]*\.)?openai\.com' --accept '200..=299,403,429' 'content/**/*.mdx'
           lychee "${common[@]}" --include '^https?://mcp\.cloudflare\.com' --accept '200..=299,401,429' 'content/**/*.mdx'
+          lychee "${common[@]}" --include '^https?://(www\.)?x\.com' --accept '200..=299,403,429' 'content/**/*.mdx'
 
       - name: 安装 Claude Code
         run: npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"

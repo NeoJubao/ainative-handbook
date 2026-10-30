@@ -10,7 +10,7 @@
 
 - **三档路径**：小工具、产品（AI-native 六阶段）、组织（ops 仓、组织级 ops agent、记忆分层、进化回路）
 - **专题**：流程引擎（superpowers 与 Matt Pocock skills 的对比与迁移）、护栏与安全
-- **坑库**：25 张来自真实复盘的卡片
+- **坑库**：29 张来自真实复盘的卡片
 - **模板库**、**启动器**（交互式清单）
 - **Claude Code 插件** `ainative`：doctor、setup、recommend、new-project、pitfall-check、harvest
 
